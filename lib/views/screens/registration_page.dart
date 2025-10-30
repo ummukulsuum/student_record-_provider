@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:student_record_project/controllers/students_controller.dart';
 import 'package:student_record_project/model/registration_model.dart';
+import 'package:student_record_project/views/widgets/register_w.dart';
 
 class RegisterPage extends StatefulWidget {
   final RegistrationModel? student;
@@ -44,16 +44,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Future<void> pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() {
-        _image = File(picked.path);
-      });
-    }
-  }
-
   void saveStudent(BuildContext context) {
     final name = nameController.text.trim();
     final age = ageController.text.trim();
@@ -63,7 +53,6 @@ class _RegisterPageState extends State<RegisterPage> {
     final phone = phoneController.text.trim();
     final email = emailController.text.trim();
 
-    //  Validation Conditions
     if (_image == null ||
         name.isEmpty ||
         age.isEmpty ||
@@ -107,26 +96,10 @@ class _RegisterPageState extends State<RegisterPage> {
     Navigator.pop(context);
   }
 
-  void showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            child: const Text('OK', style: TextStyle(color: Colors.teal)),
-            onPressed: () => Navigator.pop(context),
-          )
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F6F8), 
+      backgroundColor: const Color(0xFFF2F6F8),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6EA39E),
         title: Text(
@@ -143,13 +116,21 @@ class _RegisterPageState extends State<RegisterPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: pickImage,
+                onTap: () async {
+                  final file = await pickImage();
+                  if (file != null) {
+                    setState(() {
+                      _image = file;
+                    });
+                  }
+                },
                 child: CircleAvatar(
                   radius: 60,
                   backgroundColor: Colors.grey.shade300,
                   backgroundImage: _image != null ? FileImage(_image!) : null,
                   child: _image == null
-                      ? const Icon(Icons.camera_alt, size: 40, color: Colors.white)
+                      ? const Icon(Icons.camera_alt,
+                          size: 40, color: Colors.white)
                       : null,
                 ),
               ),
@@ -157,10 +138,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
               buildTextField(nameController, 'Full Name', Icons.person),
               buildTextField(ageController, 'Age', Icons.cake, isNumber: true),
-              buildTextField(gradeController, 'Grade', Icons.school, isNumber: true),
+              buildTextField(gradeController, 'Grade', Icons.school,
+                  isNumber: true),
               buildTextField(sectionController, 'Section', Icons.class_),
-              buildTextField(admissionController, 'Admission No.', Icons.badge, isNumber: true),
-              buildTextField(phoneController, 'Phone Number', Icons.call, isNumber: true),
+              buildTextField(admissionController, 'Admission No.', Icons.badge,
+                  isNumber: true),
+              buildTextField(phoneController, 'Phone Number', Icons.call,
+                  isNumber: true),
               buildTextField(emailController, 'Email', Icons.email),
 
               const SizedBox(height: 25),
@@ -179,32 +163,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildTextField(TextEditingController controller, String hint,
-      IconData icon, {bool isNumber = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: TextField(
-        controller: controller,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.teal),
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black54),
-          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-          filled: false,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Colors.teal, width: 1.3),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Colors.teal, width: 2),
           ),
         ),
       ),
