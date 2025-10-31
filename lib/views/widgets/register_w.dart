@@ -2,17 +2,22 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-/// ✅ Function to pick image
+/// ✅ Safe image picker (renames file to avoid emoji/special char errors)
 Future<File?> pickImage() async {
   final picker = ImagePicker();
   final picked = await picker.pickImage(source: ImageSource.gallery);
-  if (picked != null) {
-    return File(picked.path);
-  }
-  return null;
+  if (picked == null) return null;
+
+  // Rename file to avoid crash when displaying (no emoji in name)
+  final directory = Directory.systemTemp;
+  final newPath =
+      '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+  final safeFile = await File(picked.path).copy(newPath);
+
+  return safeFile;
 }
 
-/// ✅ Function to show error dialog
+/// ✅ Show error dialog
 void showErrorDialog(BuildContext context, String message) {
   showDialog(
     context: context,
@@ -29,7 +34,7 @@ void showErrorDialog(BuildContext context, String message) {
   );
 }
 
-/// ✅ Widget builder for text fields
+/// ✅ Reusable text field widget
 Widget buildTextField(
   TextEditingController controller,
   String hint,

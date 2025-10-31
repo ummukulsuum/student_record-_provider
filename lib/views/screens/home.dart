@@ -27,7 +27,16 @@ class Home extends StatelessWidget {
         ),
       ),
 
-      floatingActionButton: buildFloatingButton(context),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF6EA39E),
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const RegisterPage()),
+          );
+        },
+      ),
 
       body: Consumer<StudentsController>(
         builder: (context, controller, _) {
@@ -41,8 +50,7 @@ class Home extends StatelessWidget {
           }
 
           return ListView.builder(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             itemCount: controller.students.length,
             itemBuilder: (context, index) {
               final student = controller.students[index];

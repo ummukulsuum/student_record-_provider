@@ -65,6 +65,15 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    final ageValue = int.tryParse(age);
+    final gradeValue = int.tryParse(grade);
+    final admissionValue = int.tryParse(admission);
+
+    if (ageValue == null || gradeValue == null || admissionValue == null) {
+      showErrorDialog(context, 'Age, Grade, and Admission must be numbers');
+      return;
+    }
+
     if (phone.length != 10 || int.tryParse(phone) == null) {
       showErrorDialog(context, 'Phone number must be 10 digits');
       return;
@@ -78,10 +87,10 @@ class _RegisterPageState extends State<RegisterPage> {
     final newStudent = RegistrationModel(
       imagePath: _image!.path,
       name: name,
-      age: int.parse(age),
-      grade: int.parse(grade),
+      age: ageValue,
+      grade: gradeValue,
       section: section,
-      admission: int.parse(admission),
+      admission: admissionValue,
       phone: int.parse(phone),
       email: email,
     );
@@ -124,14 +133,17 @@ class _RegisterPageState extends State<RegisterPage> {
                     });
                   }
                 },
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.grey.shade300,
-                  backgroundImage: _image != null ? FileImage(_image!) : null,
-                  child: _image == null
-                      ? const Icon(Icons.camera_alt,
-                          size: 40, color: Colors.white)
-                      : null,
+                child: Hero(
+                  tag: 'studentImage',
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.grey.shade300,
+                    backgroundImage: _image != null ? FileImage(_image!) : null,
+                    child: _image == null
+                        ? const Icon(Icons.camera_alt,
+                            size: 40, color: Colors.white)
+                        : null,
+                  ),
                 ),
               ),
               const SizedBox(height: 25),
