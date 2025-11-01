@@ -26,7 +26,6 @@ Widget buildStudentCard({
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ✅ Profile Image (safe + errorBuilder)
           ClipRRect(
             borderRadius: BorderRadius.circular(14),
             child: (student.imagePath.isNotEmpty &&
@@ -55,7 +54,6 @@ Widget buildStudentCard({
 
           const SizedBox(width: 18),
 
-          // ✅ Student Info (takes remaining space)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +120,6 @@ Widget buildStudentCard({
 
           const SizedBox(width: 8),
 
-          // ✅ Fixed width for action buttons → prevents overflow
           SizedBox(
             width: 50,
             child: Column(

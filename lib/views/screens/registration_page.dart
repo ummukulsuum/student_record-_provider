@@ -16,8 +16,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
-  File? _image;
+  final formKey = GlobalKey<FormState>();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController ageController = TextEditingController();
@@ -30,21 +29,35 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.student != null) {
-      nameController.text = widget.student!.name;
-      ageController.text = widget.student!.age.toString();
-      gradeController.text = widget.student!.grade.toString();
-      sectionController.text = widget.student!.section;
-      admissionController.text = widget.student!.admission.toString();
-      phoneController.text = widget.student!.phone.toString();
-      emailController.text = widget.student!.email;
-      if (widget.student!.imagePath.isNotEmpty) {
-        _image = File(widget.student!.imagePath);
+
+    // ✅ Run provider updates after first frame to avoid "setState() during build" error
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = Provider.of<StudentsController>(context, listen: false);
+
+      // Clear previous selected image safely
+      controller.clearSelectedImage();
+
+      // If editing an existing student, pre-fill data
+      if (widget.student != null) {
+        nameController.text = widget.student!.name;
+        ageController.text = widget.student!.age.toString();
+        gradeController.text = widget.student!.grade.toString();
+        sectionController.text = widget.student!.section;
+        admissionController.text = widget.student!.admission.toString();
+        phoneController.text = widget.student!.phone.toString();
+        emailController.text = widget.student!.email;
+
+        if (widget.student!.imagePath.isNotEmpty) {
+          controller.setSelectedImage(File(widget.student!.imagePath));
+        }
       }
-    }
+    });
   }
 
   void saveStudent(BuildContext context) {
+    final controller = Provider.of<StudentsController>(context, listen: false);
+    final image = controller.selectedImage;
+
     final name = nameController.text.trim();
     final age = ageController.text.trim();
     final grade = gradeController.text.trim();
@@ -53,7 +66,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final phone = phoneController.text.trim();
     final email = emailController.text.trim();
 
-    if (_image == null ||
+    if (image == null ||
         name.isEmpty ||
         age.isEmpty ||
         grade.isEmpty ||
@@ -85,7 +98,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     final newStudent = RegistrationModel(
-      imagePath: _image!.path,
+      imagePath: image.path,
       name: name,
       age: ageValue,
       grade: gradeValue,
@@ -95,7 +108,6 @@ class _RegisterPageState extends State<RegisterPage> {
       email: email,
     );
 
-    final controller = Provider.of<StudentsController>(context, listen: false);
     if (widget.index == null) {
       controller.addStudent(newStudent);
     } else {
@@ -107,6 +119,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<StudentsController>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F6F8),
       appBar: AppBar(
@@ -120,7 +134,7 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -128,9 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 onTap: () async {
                   final file = await pickImage();
                   if (file != null) {
-                    setState(() {
-                      _image = file;
-                    });
+                    controller.setSelectedImage(file);
                   }
                 },
                 child: Hero(
@@ -138,8 +150,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: CircleAvatar(
                     radius: 60,
                     backgroundColor: Colors.grey.shade300,
-                    backgroundImage: _image != null ? FileImage(_image!) : null,
-                    child: _image == null
+                    backgroundImage: controller.selectedImage != null
+                        ? FileImage(controller.selectedImage!)
+                        : null,
+                    child: controller.selectedImage == null
                         ? const Icon(Icons.camera_alt,
                             size: 40, color: Colors.white)
                         : null,

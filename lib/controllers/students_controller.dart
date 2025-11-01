@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:student_record_project/model/registration_model.dart';
@@ -5,6 +6,8 @@ import 'package:student_record_project/model/registration_model.dart';
 class StudentsController extends ChangeNotifier {
   final _box = Hive.box<RegistrationModel>('studentsBox');
   List<RegistrationModel> students = [];
+
+  File? selectedImage; 
 
   StudentsController() {
     loadStudents();
@@ -28,5 +31,15 @@ class StudentsController extends ChangeNotifier {
   void deleteStudent(int index) async {
     await _box.deleteAt(index);
     loadStudents();
+  }
+
+  void setSelectedImage(File file) {
+    selectedImage = file;
+    notifyListeners();
+  }
+
+  void clearSelectedImage() {
+    selectedImage = null;
+    notifyListeners();
   }
 }

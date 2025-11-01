@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_record_project/controllers/students_controller.dart';
-import 'package:student_record_project/hive_service.dart/hive.dart';
+import 'package:student_record_project/hive_service/hive.dart';
 import 'package:student_record_project/views/screens/home.dart';
 
 void main() async {
